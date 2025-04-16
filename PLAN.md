@@ -52,22 +52,22 @@ nixos-pi-servers/
    - ✅ nixos-anywhere
 3. ✅ Create a `shell.nix` file for development environment
 
-### 2. Create Modular Configuration Framework
+### ✅ 2. Create Modular Configuration Framework
 
-1. Configure the flake.nix to:
+1. ✅ Configure the flake.nix to:
 
-   - Define inputs (nixpkgs, disko, nixos-anywhere)
-   - Set up NixOS configurations for each hostname
-   - Organize shared and machine-specific outputs
+   - ✅ Define inputs (nixpkgs, disko, nixos-anywhere)
+   - ✅ Set up NixOS configurations for each hostname
+   - ✅ Organize shared and machine-specific outputs
 
-2. Create the hosts module structure:
+2. ✅ Create the hosts module structure:
 
-   - `hosts/common/` for shared configurations
-   - Individual host directories with specific configurations
+   - ✅ `hosts/common/` for shared configurations
+   - ✅ Individual host directories with specific configurations
 
-3. Implement the disk layout modules:
-   - Standard disk layout applicable to all machines
-   - Any machine-specific disk layout variations if needed
+3. ✅ Implement the disk layout modules:
+   - ✅ Standard disk layout applicable to all machines
+   - ✅ Any machine-specific disk layout variations if needed
 
 ### 3. Configure Common Modules
 
