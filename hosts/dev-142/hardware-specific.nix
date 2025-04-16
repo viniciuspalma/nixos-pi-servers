@@ -2,44 +2,34 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Hardware-specific settings
-  hardware = {
-    # CPU-specific optimizations
-    cpu.intel.updateMicrocode = true;
+  # Import common hardware configuration
+  imports = [ ../common/hardware.nix ];
 
-    # Enable all firmware
-    enableAllFirmware = true;
-  };
+  # Override kernel parameters specific to database workloads
+  boot.kernelParams = [
+    # Memory management for database workloads
+    "transparent_hugepage=madvise"
+  ];
 
-  # Kernel configuration for database workloads
-  boot = {
-    kernelParams = [
-      # IO scheduler optimizations
-      "elevator=deadline"
-      # Memory management for database workloads
-      "transparent_hugepage=madvise"
-    ];
+  # Database-specific kernel settings
+  boot.kernel.sysctl = {
+    # Virtual memory settings optimized for database
+    "vm.swappiness" = 1; # Lower than common setting
+    "vm.dirty_ratio" = 40;
+    "vm.dirty_background_ratio" = 10;
+    "vm.min_free_kbytes" = 65536;
 
-    # Adjust kernel settings for database performance
-    kernel.sysctl = {
-      # Virtual memory settings
-      "vm.swappiness" = 1;
-      "vm.dirty_ratio" = 40;
-      "vm.dirty_background_ratio" = 10;
-      "vm.min_free_kbytes" = 65536;
+    # File system settings
+    "fs.file-max" = 500000;
+    "fs.aio-max-nr" = 1048576;
 
-      # File system settings
-      "fs.file-max" = 500000;
-      "fs.aio-max-nr" = 1048576;
-
-      # Network settings
-      "net.core.somaxconn" = 4096;
-      "net.ipv4.tcp_max_syn_backlog" = 4096;
-      "net.ipv4.tcp_fin_timeout" = 30;
-      "net.ipv4.tcp_keepalive_intvl" = 15;
-      "net.ipv4.tcp_keepalive_probes" = 5;
-      "net.ipv4.tcp_keepalive_time" = 300;
-    };
+    # Network settings
+    "net.core.somaxconn" = 4096;
+    "net.ipv4.tcp_max_syn_backlog" = 4096;
+    "net.ipv4.tcp_fin_timeout" = 30;
+    "net.ipv4.tcp_keepalive_intvl" = 15;
+    "net.ipv4.tcp_keepalive_probes" = 5;
+    "net.ipv4.tcp_keepalive_time" = 300;
   };
 
   # Filesystems configuration
@@ -66,16 +56,8 @@
     size = 16384; # 16GB swap for database operations
   }];
 
-  # Power management optimized for server workloads
-  powerManagement = {
-    enable = true;
-    cpuFreqGovernor = "performance";
-  };
-
-  # Configure IO scheduler for database performance
+  # Database-optimized IO scheduler - override specific settings
   services.udev.extraRules = ''
-    # Set IO scheduler for NVMe drive
-    ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="none"
     # Set IO scheduler for other disks
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/scheduler}="deadline"
   '';
