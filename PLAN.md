@@ -69,12 +69,12 @@ nixos-pi-servers/
    - ✅ Standard disk layout applicable to all machines
    - ✅ Any machine-specific disk layout variations if needed
 
-### 3. Configure Common Modules
+### ✅ 3. Configure Common Modules
 
-1. SSH configuration with appropriate keys
-2. Network configuration
-3. Base system configuration
-4. User management
+1. ✅ SSH configuration with appropriate keys
+2. ✅ Network configuration
+3. ✅ Base system configuration
+4. ✅ User management
 
 ### 4. Configure Host-Specific Modules
 
