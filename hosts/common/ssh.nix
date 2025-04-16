@@ -13,7 +13,7 @@
 
   # Add your SSH public key here for root access during installation
   users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-rsa AAAAB3NzaC1yc2EAAA... replace-with-your-actual-key"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICf3+Pnj8acqkAAJNK0WVQrJ/5rIomxxi4U6rCRpIK+v"
     # Add additional keys as needed
   ];
 }

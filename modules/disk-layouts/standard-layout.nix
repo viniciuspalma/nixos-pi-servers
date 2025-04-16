@@ -10,21 +10,25 @@
         content = {
           type = "gpt";
           partitions = {
-            MBR = {
+            # BIOS boot partition
+            BIOS = {
               priority = 0;
               size = "1M";
-              type = "EF02";
+              type = "EF02"; # BIOS boot partition
+              flags = ["bios_grub"];
             };
-            ESP = {
+            # Boot partition
+            boot = {
               priority = 1;
-              size = "500M";
-              type = "EF00";
+              size = "512M";
+              type = "8300"; # Linux filesystem
               content = {
                 type = "filesystem";
-                format = "vfat";
+                format = "ext4";
                 mountpoint = "/boot";
               };
             };
+            # Root partition
             root = {
               priority = 2;
               size = "100%";
