@@ -11,13 +11,9 @@
       url = "github:nix-community/nixos-anywhere";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    raspberry-pi-nix = {
-      url = "github:nix-community/raspberry-pi-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, disko, nixos-anywhere, raspberry-pi-nix, ... }:
+  outputs = { self, nixpkgs, disko, nixos-anywhere, ... }:
     let
       system = "aarch64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -27,13 +23,13 @@
         ${hostname} = nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit disko nixos-anywhere raspberry-pi-nix;
+            inherit disko nixos-anywhere;
           };
           modules = [
             ./hosts/${hostname}
             ./hosts/common
+            ./modules/raspberry-pi.nix
             disko.nixosModules.disko
-            raspberry-pi-nix.nixosModules.raspberry-pi
           ];
         };
       };

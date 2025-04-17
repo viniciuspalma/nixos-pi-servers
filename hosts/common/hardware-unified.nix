@@ -23,7 +23,8 @@
     ];
 
     # Use Raspberry Pi specific kernel
-    kernelPackages = lib.mkDefault pkgs.linuxPackages_rpi4;
+    # This is the kernel for the Pi 4/CM4
+    kernelPackages = pkgs.linuxPackagesFor pkgs.rpi-kernels.v6_12_17.bcm2711;
 
     initrd.availableKernelModules = [
       "pcie_brcmstb"     # Required for the PCIe bus to work
@@ -66,6 +67,11 @@
   powerManagement = {
     enable = true;
     cpuFreqGovernor = "performance";
+  };
+
+  # Enable Raspberry Pi specific configuration
+  raspberry-pi = {
+    loader.enable = true;
   };
 
   # SSD optimizations

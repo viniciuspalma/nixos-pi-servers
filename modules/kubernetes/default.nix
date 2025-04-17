@@ -78,7 +78,7 @@ in
   ];
 
   # # Required for network plugin
-  # boot.extraModulePackages = [
-  #   config.boot.kernelPackages.wireguard
-  # ];
+  boot.extraModulePackages = [
+    config.boot.kernelPackages.wireguard
+  ];
 }
