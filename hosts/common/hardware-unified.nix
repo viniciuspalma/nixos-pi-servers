@@ -62,10 +62,6 @@
       "net.ipv4.tcp_max_syn_backlog" = 8096;
     };
   };
-
-  # Enable Raspberry Pi specific configuration
-  raspberry-pi-nix.board = "bcm2711"; # For Pi 4/CM4
-
   # Power management optimized for server workloads
   powerManagement = {
     enable = true;

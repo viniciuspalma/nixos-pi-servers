@@ -3,6 +3,8 @@
 
 {
   # Any control-plane specific hardware adjustments can go here
+  # CM5
+  raspberry-pi-nix.board = "bcm2712";
 
   # Additional memory for etcd and apiserver
   boot.kernel.sysctl = {
