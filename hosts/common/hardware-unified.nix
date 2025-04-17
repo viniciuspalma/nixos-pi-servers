@@ -5,41 +5,36 @@
   # Basic hardware support
   hardware = {
     enableAllFirmware = true;
+    enableRedistributableFirmware = true;
   };
 
-  # Power management optimized for server workloads
-  powerManagement = {
-    enable = true;
-    cpuFreqGovernor = "performance";
-  };
-
-  # SSD optimizations
-  services.fstrim.enable = true;
-
-  # Disk IO scheduler optimizations
-  services.udev.extraRules = ''
-    # Set IO scheduler for NVMe drives
-    ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="none"
-    # Set IO scheduler for SSD
-    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
-    # Set IO scheduler for HDD
-    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
-  '';
-
-  # Boot configuration
+  # Raspberry Pi specific configuration
   boot = {
-    # Latest kernel packages
-    kernelPackages = pkgs.linuxPackages_latest;
+    loader = {
+      grub.enable = false;
+    };
 
-    # Kernel modules - can be conditionally loaded based on host config
-    kernelModules = lib.mkDefault [ "br_netfilter" "overlay" "nf_conntrack" ];
-
-    # Kernel parameters - with reasonable defaults for both standard and k8s nodes
-    kernelParams = lib.mkDefault [
-      # General performance
+    kernelParams = [
+      "console=tty1"
+      "console=serial0,115200n8"
+      # Keep existing performance params
       "elevator=none"
-      # Container optimizations that don't harm regular systems
       "transparent_hugepage=madvise"
+    ];
+
+    # Use Raspberry Pi specific kernel
+    kernelPackages = lib.mkDefault pkgs.linuxPackages_rpi4;
+
+    initrd.availableKernelModules = [
+      "pcie_brcmstb"     # Required for the PCIe bus to work
+      "reset-raspberrypi" # Required for vl805 firmware to load
+      "usb_storage"
+      "usbhid"
+      "vc4"             # VideoCore IV GPU
+      # Keep existing modules for k8s
+      "br_netfilter"
+      "overlay"
+      "nf_conntrack"
     ];
 
     # Boot optimizations - using mkDefault so hosts can override if needed
@@ -67,6 +62,28 @@
       "net.ipv4.tcp_max_syn_backlog" = 8096;
     };
   };
+
+  # Enable Raspberry Pi specific configuration
+  raspberry-pi-nix.board = "bcm2711"; # For Pi 4/CM4
+
+  # Power management optimized for server workloads
+  powerManagement = {
+    enable = true;
+    cpuFreqGovernor = "performance";
+  };
+
+  # SSD optimizations
+  services.fstrim.enable = true;
+
+  # Disk IO scheduler optimizations
+  services.udev.extraRules = ''
+    # Set IO scheduler for NVMe drives
+    ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/scheduler}="none"
+    # Set IO scheduler for SSD
+    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="mq-deadline"
+    # Set IO scheduler for HDD
+    ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
+  '';
 
   # System resource limits with reasonable defaults
   security.pam.loginLimits = lib.mkDefault [
