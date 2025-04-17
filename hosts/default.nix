@@ -1,7 +1,9 @@
 # Default host module that routes to specific host configurations
-{ config, lib, ... }:
-
 {
+  config,
+  lib,
+  ...
+}: {
   imports = [
     ./common
   ];

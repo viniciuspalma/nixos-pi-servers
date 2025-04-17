@@ -1,7 +1,10 @@
 # Unified hardware configuration for all nodes
-{ config, lib, pkgs, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
   # Basic hardware support
   hardware = {
     enableAllFirmware = true;
@@ -22,16 +25,12 @@
       "transparent_hugepage=madvise"
     ];
 
-    # Use Raspberry Pi specific kernel
-    # This is the kernel for the Pi 4/CM4
-    kernelPackages = pkgs.linuxPackagesFor pkgs.rpi-kernels.v6_12_17.bcm2711;
-
     initrd.availableKernelModules = [
-      "pcie_brcmstb"     # Required for the PCIe bus to work
+      "pcie_brcmstb" # Required for the PCIe bus to work
       "reset-raspberrypi" # Required for vl805 firmware to load
       "usb_storage"
       "usbhid"
-      "vc4"             # VideoCore IV GPU
+      "vc4" # VideoCore IV GPU
       # Keep existing modules for k8s
       "br_netfilter"
       "overlay"
@@ -89,10 +88,30 @@
 
   # System resource limits with reasonable defaults
   security.pam.loginLimits = lib.mkDefault [
-    { domain = "*"; type = "soft"; item = "nofile"; value = "1048576"; }
-    { domain = "*"; type = "hard"; item = "nofile"; value = "1048576"; }
-    { domain = "*"; type = "soft"; item = "nproc"; value = "unlimited"; }
-    { domain = "*"; type = "hard"; item = "nproc"; value = "unlimited"; }
+    {
+      domain = "*";
+      type = "soft";
+      item = "nofile";
+      value = "1048576";
+    }
+    {
+      domain = "*";
+      type = "hard";
+      item = "nofile";
+      value = "1048576";
+    }
+    {
+      domain = "*";
+      type = "soft";
+      item = "nproc";
+      value = "unlimited";
+    }
+    {
+      domain = "*";
+      type = "hard";
+      item = "nproc";
+      value = "unlimited";
+    }
   ];
 
   # System tuning via systemd

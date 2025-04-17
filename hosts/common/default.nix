@@ -2,7 +2,7 @@
 {
   lib,
   pkgs,
-  inputs,
+  raspberry-pi-nix,
   ...
 }: {
   imports = [
@@ -24,7 +24,7 @@
       allowUnfree = true;
     };
 
-    overlays = [inputs.raspberry-pi-nix.overlays.core];
+    overlays = [raspberry-pi-nix.overlays.core];
   };
 
   # Set a common state version

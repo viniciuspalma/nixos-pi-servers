@@ -11,46 +11,58 @@
       url = "github:nix-community/nixos-anywhere";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    raspberry-pi-nix = {
+      url = "github:nix-community/raspberry-pi-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, disko, nixos-anywhere, ... }:
-    let
-      system = "aarch64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+  outputs = {
+    self,
+    nixpkgs,
+    disko,
+    nixos-anywhere,
+    raspberry-pi-nix,
+    ...
+  }: let
+    system = "aarch64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
 
-      # Helper function to create a NixOS configuration for a host
-      mkHost = hostname: {
-        ${hostname} = nixpkgs.lib.nixosSystem {
-          inherit system;
-          specialArgs = {
-            inherit disko nixos-anywhere;
-          };
-          modules = [
-            ./hosts/${hostname}
-            ./hosts/common
-            ./modules/raspberry-pi.nix
-            disko.nixosModules.disko
-          ];
+    # Helper function to create a NixOS configuration for a host
+    mkHost = hostname: {
+      ${hostname} = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {
+          inherit disko nixos-anywhere raspberry-pi-nix;
         };
+        modules = [
+          ./hosts/${hostname}
+          ./hosts/common
+          ./modules/raspberry-pi.nix
+          disko.nixosModules.disko
+        ];
       };
-
-      # List of all host names
-      hostnames = [
-        "dev-365"
-        "dev-901"
-        "dev-142"
-        "dev-605"
-      ];
-
-      # Create configurations for all hosts
-      nixosConfigurations = nixpkgs.lib.foldl' (acc: hostname:
-        acc // (mkHost hostname)
-      ) {} hostnames;
-
-    in {
-      inherit nixosConfigurations;
-
-      # Expose formatter
-      formatter.${system} = pkgs.nixpkgs-fmt;
     };
+
+    # List of all host names
+    hostnames = [
+      "dev-365"
+      "dev-901"
+      "dev-142"
+      "dev-605"
+    ];
+
+    # Create configurations for all hosts
+    nixosConfigurations =
+      nixpkgs.lib.foldl' (
+        acc: hostname:
+          acc // (mkHost hostname)
+      ) {}
+      hostnames;
+  in {
+    inherit nixosConfigurations;
+
+    # Expose formatter
+    formatter.${system} = pkgs.nixpkgs-fmt;
+  };
 }

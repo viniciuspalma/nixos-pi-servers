@@ -1,14 +1,10 @@
 {
   config,
   lib,
-  inputs,
   pkgs,
   ...
 }:
-
-with lib;
-
-let
+with lib; let
   cfg = config.raspberry-pi;
   rpi-boot-builder = pkgs.writeShellApplication {
     name = "rpi-boot-builder.sh";
@@ -40,8 +36,7 @@ let
       EOF
     '';
   };
-in
-{
+in {
   options.raspberry-pi = {
     loader = {
       enable = mkOption {
