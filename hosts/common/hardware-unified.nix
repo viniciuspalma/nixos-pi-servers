@@ -5,7 +5,6 @@
   # Basic hardware support
   hardware = {
     enableAllFirmware = true;
-    cpu.intel.updateMicrocode = true;
   };
 
   # Power management optimized for server workloads
