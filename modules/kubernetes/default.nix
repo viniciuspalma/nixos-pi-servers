@@ -38,7 +38,6 @@ in
       kubelet = {
         enable = true;
         extraOpts = "--fail-swap-on=false"; # Raspberry Pi may not have swap
-        nodeIp = config.networking.primaryIPAddress;
         containerRuntimeEndpoint = "unix:///run/containerd/containerd.sock";
       };
     };
@@ -78,8 +77,8 @@ in
     runc
   ];
 
-  # Required for network plugin
-  boot.extraModulePackages = [
-    config.boot.kernelPackages.wireguard
-  ];
+  # # Required for network plugin
+  # boot.extraModulePackages = [
+  #   config.boot.kernelPackages.wireguard
+  # ];
 }

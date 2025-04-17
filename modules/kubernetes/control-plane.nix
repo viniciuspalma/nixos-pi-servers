@@ -4,9 +4,14 @@
 let
   # Define primaryIPAddress - use the first IP of the first interface or a static value
   primaryIPAddress = with config.networking;
-    if (interfaces != {} && builtins.hasAttr (builtins.head (builtins.attrNames interfaces)) interfaces) then
-      builtins.head (builtins.head (builtins.attrValues
-        (builtins.mapAttrs (name: eth0: eth0.ipv4.addresses) interfaces))).address
+    if (interfaces != {}) then
+      let
+        firstInterface = builtins.head (builtins.attrNames interfaces);
+        addresses = interfaces.${firstInterface}.ipv4.addresses;
+      in
+        if (addresses != [] && builtins.length addresses > 0)
+        then (builtins.head addresses).address
+        else "127.0.0.1"
     else
       "127.0.0.1"; # Fallback address
 in
@@ -75,6 +80,5 @@ in
   # Add control plane specific packages
   environment.systemPackages = with pkgs; [
     kubernetes-helm
-    etcdctl
   ];
 }
