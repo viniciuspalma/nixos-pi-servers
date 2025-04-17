@@ -15,7 +15,7 @@
 
   outputs = { self, nixpkgs, disko, nixos-anywhere, ... }:
     let
-      system = "x86_64-linux";
+      system = "aarch64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
 
       # Helper function to create a NixOS configuration for a host
