@@ -1,11 +1,11 @@
-# Configuration for dev-901
+# Configuration for dev-901 (Kubernetes Control Plane)
 { modulesPath, pkgs, ... }:
 
 {
   imports = [
     ../../modules/disk-layouts
     ./hardware-specific.nix
-    ./services.nix
+    ../../modules/kubernetes/control-plane.nix
   ];
 
   # Host specific configuration
@@ -28,49 +28,12 @@
   # Bootloader configuration
   boot.loader.grub.devices = [ "/dev/nvme0n1" ];
 
-  # Role: CI/CD Server
+  # Only include essential packages for Kubernetes management
   environment.systemPackages = with pkgs; [
-    # Build tools
-    docker-compose
-    jenkins
-    git
-    gnumake
-    gcc
-    python3
-    python3Packages.pip
-    buildah
-    podman
-    skopeo
-  ];
-
-  # Services specific to this host
-  services = {
-    # Jenkins automation server
-    jenkins = {
-      enable = true;
-      package = pkgs.jenkins;
-      port = 8080;
-      user = "jenkins";
-      group = "jenkins";
-      extraGroups = [ "docker" ];
-      environment = {
-        JENKINS_HOME = "/var/lib/jenkins";
-      };
-      plugins = [
-        "git"
-        "workflow-aggregator"
-        "docker-plugin"
-        "pipeline"
-        "job-dsl"
-        "blueocean"
-      ];
-    };
-  };
-
-  # Firewall adjustments for services
-  networking.firewall.allowedTCPPorts = [
-    80 443    # Web
-    8080      # Jenkins
-    5000      # Docker registry
+    kubectl
+    kubernetes-helm
+    k9s
+    etcdctl
+    jq
   ];
 }

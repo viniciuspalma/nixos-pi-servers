@@ -19,6 +19,7 @@
       securePort = 6443;
       # For single-node setup or simple deployment
       authorizationMode = ["RBAC" "Node"];
+      extraSANs = ["dev-901"];
     };
 
     # Controller manager configuration
@@ -44,8 +45,15 @@
       enable = true;
     };
 
-    # Use etcd as the backing store
+    # Set master address to self for control-plane
     masterAddress = config.networking.primaryIPAddress;
+
+    # Configure etcd on control-plane
+    etcd = {
+      enable = true;
+      listenClientUrls = ["https://127.0.0.1:2379" "https://${config.networking.primaryIPAddress}:2379"];
+      advertiseClientUrls = ["https://${config.networking.primaryIPAddress}:2379"];
+    };
   };
 
   # Open additional ports for control plane
@@ -72,5 +80,6 @@
   # Add control plane specific packages
   environment.systemPackages = with pkgs; [
     kubernetes-helm
+    etcdctl
   ];
 }

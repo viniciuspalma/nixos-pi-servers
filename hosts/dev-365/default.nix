@@ -1,11 +1,11 @@
-# Configuration for dev-365
+# Configuration for dev-365 (Kubernetes Worker Node)
 { modulesPath, pkgs, ... }:
 
 {
   imports = [
     ../../modules/disk-layouts
     ./hardware-specific.nix
-    ./services.nix
+    ../../modules/kubernetes/worker.nix
   ];
 
   # Host specific configuration
@@ -22,47 +22,18 @@
     # nameservers = [ "1.1.1.1" "8.8.8.8" ];
   };
 
+  # Override Kubernetes master address to point to dev-901
+  services.kubernetes.masterAddress = "dev-901";
+
   # Host specific disk device
   disko.devices.disk.main.device = "/dev/nvme0n1";
 
   # Bootloader configuration
   boot.loader.grub.devices = [ "/dev/nvme0n1" ];
 
-  # Role: Primary Development Server
+  # Only include essential packages for Kubernetes node
   environment.systemPackages = with pkgs; [
-    # Development tools
-    nodejs
-    rustup
-    go
-    vscode-server
-    gcc
-    gnumake
-    python3
-  ];
-
-  # Services specific to this host
-  services = {
-    # PostgreSQL database server
-    postgresql = {
-      enable = true;
-      package = pkgs.postgresql_14;
-      enableTCPIP = true;
-      authentication = pkgs.lib.mkOverride 10 ''
-        local all all trust
-        host all all 127.0.0.1/32 trust
-        host all all ::1/128 trust
-      '';
-      initialScript = pkgs.writeText "backend-initScript" ''
-        CREATE ROLE admin WITH LOGIN PASSWORD 'admin' CREATEDB;
-        CREATE DATABASE development;
-        GRANT ALL PRIVILEGES ON DATABASE development TO admin;
-      '';
-    };
-  };
-
-  # Firewall adjustments for services
-  networking.firewall.allowedTCPPorts = [
-    80 443    # Web
-    5432      # PostgreSQL
+    kubectl
+    k9s
   ];
 }

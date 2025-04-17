@@ -2,16 +2,32 @@
 { config, lib, pkgs, ... }:
 
 {
+  # Enable container runtime
+  virtualisation.containerd = {
+    enable = true;
+    settings = {
+      version = 2;
+      plugins."io.containerd.grpc.v1.cri" = {
+        sandbox_image = "registry.k8s.io/pause:3.8";
+        containerd.runtimes.runc.options = {
+          SystemdCgroup = true;
+        };
+      };
+    };
+  };
+
   # Enable Kubernetes-related services
   services = {
     # Enable kubelet on all nodes
     kubernetes = {
       roles = ["node"];
+
       # Common kubelet configuration
       kubelet = {
         enable = true;
         extraOpts = "--fail-swap-on=false"; # Raspberry Pi may not have swap
         nodeIp = config.networking.primaryIPAddress;
+        containerRuntimeEndpoint = "unix:///run/containerd/containerd.sock";
       };
 
       # Shared cluster configuration
@@ -52,10 +68,22 @@
     iptables
     ebtables
     ipset
+    containerd
+    runc
   ];
 
   # Required for network plugin
   boot.extraModulePackages = [
     config.boot.kernelPackages.wireguard
   ];
+
+  # Kernel modules needed for Kubernetes
+  boot.kernelModules = [ "br_netfilter" "overlay" ];
+
+  # Kernel settings for Kubernetes
+  boot.kernel.sysctl = {
+    "net.bridge.bridge-nf-call-iptables" = 1;
+    "net.bridge.bridge-nf-call-ip6tables" = 1;
+    "net.ipv4.ip_forward" = 1;
+  };
 }

@@ -20,8 +20,8 @@
       network = config.services.kubernetes.commonClusterConfig.podSubnet;
     };
 
-    # Point to the master node (would be replaced with actual control plane address)
-    masterAddress = "kube-master.local";
+    # Default master address (can be overridden in node-specific config)
+    masterAddress = "dev-901";
   };
 
   # Open additional ports for worker nodes and flannel networking
@@ -39,6 +39,7 @@
 
   # Worker-specific packages
   environment.systemPackages = with pkgs; [
+    kubectl
     cri-tools # Container runtime interface tools
   ];
 }
