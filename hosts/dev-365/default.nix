@@ -12,14 +12,12 @@
   networking = {
     hostName = "dev-365";
 
-    # Static IP configuration (optional)
-    # useDHCP = false;
-    # interfaces.eth0.ipv4.addresses = [{
-    #   address = "192.168.13.104";
-    #   prefixLength = 24;
-    # }];
-    # defaultGateway = "192.168.13.1";
-    # nameservers = [ "1.1.1.1" "8.8.8.8" ];
+    useDHCP = false;
+    interfaces.eth0.ipv4.addresses = [{
+      address = "192.168.13.104";
+      prefixLength = 24;
+    }];
+    defaultGateway = "192.168.1.1";
   };
 
   # Override Kubernetes master address to point to dev-901

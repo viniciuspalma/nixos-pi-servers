@@ -1,6 +1,15 @@
 # Kubernetes control plane configuration
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, k8s, ... }:
 
+let
+  # Define primaryIPAddress - use the first IP of the first interface or a static value
+  primaryIPAddress = with config.networking;
+    if (interfaces != {} && builtins.hasAttr (builtins.head (builtins.attrNames interfaces)) interfaces) then
+      builtins.head (builtins.head (builtins.attrValues
+        (builtins.mapAttrs (name: eth0: eth0.ipv4.addresses) interfaces))).address
+    else
+      "127.0.0.1"; # Fallback address
+in
 {
   imports = [
     ./default.nix
@@ -13,8 +22,8 @@
     # API server configuration
     apiserver = {
       enable = true;
-      serviceClusterIpRange = config.services.kubernetes.commonClusterConfig.serviceClusterIpRange;
-      advertiseAddress = config.networking.primaryIPAddress;
+      serviceClusterIpRange = k8s.serviceClusterIpRange;
+      advertiseAddress = primaryIPAddress;
       allowPrivileged = true;
       securePort = 6443;
       # For single-node setup or simple deployment
@@ -25,8 +34,8 @@
     # Controller manager configuration
     controllerManager = {
       enable = true;
-      serviceClusterIpRange = config.services.kubernetes.commonClusterConfig.serviceClusterIpRange;
-      clusterCidr = config.services.kubernetes.commonClusterConfig.podSubnet;
+    #   serviceClusterIpRange = k8s.serviceClusterIpRange;
+      clusterCidr = k8s.podSubnet;
     };
 
     # Scheduler configuration
@@ -37,7 +46,7 @@
     # Basic Flannel CNI networking
     flannel = {
       enable = true;
-      network = config.services.kubernetes.commonClusterConfig.podSubnet;
+      openFirewallPorts = true;
     };
 
     # Enable proxy on the control plane
@@ -46,14 +55,7 @@
     };
 
     # Set master address to self for control-plane
-    masterAddress = config.networking.primaryIPAddress;
-
-    # Configure etcd on control-plane
-    etcd = {
-      enable = true;
-      listenClientUrls = ["https://127.0.0.1:2379" "https://${config.networking.primaryIPAddress}:2379"];
-      advertiseClientUrls = ["https://${config.networking.primaryIPAddress}:2379"];
-    };
+    masterAddress = primaryIPAddress;
   };
 
   # Open additional ports for control plane
@@ -67,13 +69,6 @@
       10251
       # Kubernetes controller manager
       10252
-      # Flannel overlay network
-      8472
-    ];
-
-    # For Flannel UDP
-    allowedUDPPorts = [
-      8472
     ];
   };
 

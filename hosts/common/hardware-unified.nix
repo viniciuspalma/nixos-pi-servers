@@ -1,4 +1,4 @@
-# Standardized hardware configuration for Kubernetes nodes
+# Unified hardware configuration for all nodes
 { config, lib, pkgs, ... }:
 
 {
@@ -27,40 +27,38 @@
     ACTION=="add|change", KERNEL=="sd[a-z]", ATTR{queue/rotational}=="1", ATTR{queue/scheduler}="bfq"
   '';
 
-  # Boot loader with latest kernel
+  # Boot configuration
   boot = {
+    # Latest kernel packages
     kernelPackages = pkgs.linuxPackages_latest;
 
-    # Kernel modules needed for Kubernetes
-    kernelModules = [ "br_netfilter" "overlay" "nf_conntrack" ];
+    # Kernel modules - can be conditionally loaded based on host config
+    kernelModules = lib.mkDefault [ "br_netfilter" "overlay" "nf_conntrack" ];
 
-    # Kernel parameters for Kubernetes
-    kernelParams = [
+    # Kernel parameters - with reasonable defaults for both standard and k8s nodes
+    kernelParams = lib.mkDefault [
       # General performance
       "elevator=none"
-      # Container optimizations
-      "cgroup_enable=memory"
-      "cgroup_memory=1"
-      # SSD optimizations
+      # Container optimizations that don't harm regular systems
       "transparent_hugepage=madvise"
     ];
 
-    # Boot optimizations
-    kernel.sysctl = {
-      # VM settings optimized for containers
+    # Boot optimizations - using mkDefault so hosts can override if needed
+    kernel.sysctl = lib.mkDefault {
+      # VM settings optimized for general use and containers
       "vm.swappiness" = 10;
       "vm.dirty_ratio" = 5;
       "vm.dirty_background_ratio" = 2;
       "vm.max_map_count" = 262144;
       "vm.min_free_kbytes" = 65536;
 
-      # File system settings for container workloads
+      # File system settings that benefit all workloads
       "fs.file-max" = 1000000;
       "fs.inotify.max_user_watches" = 524288;
       "fs.inotify.max_user_instances" = 8192;
       "fs.aio-max-nr" = 1048576;
 
-      # Network settings optimized for Kubernetes
+      # Network settings optimized for general server use
       "net.core.somaxconn" = 32768;
       "net.core.netdev_max_backlog" = 10000;
       "net.core.rmem_max" = 16777216;
@@ -68,23 +66,11 @@
       "net.ipv4.tcp_rmem" = "4096 87380 16777216";
       "net.ipv4.tcp_wmem" = "4096 65536 16777216";
       "net.ipv4.tcp_max_syn_backlog" = 8096;
-
-      # Required for Kubernetes networking
-      "net.bridge.bridge-nf-call-iptables" = 1;
-      "net.bridge.bridge-nf-call-ip6tables" = 1;
-      "net.ipv4.ip_forward" = 1;
-      "net.ipv4.conf.all.forwarding" = 1;
-      "net.ipv6.conf.all.forwarding" = 1;
-      "net.ipv4.conf.default.rp_filter" = 0;
-      "net.ipv4.conf.all.rp_filter" = 0;
-
-      # Connection tracking for services
-      "net.netfilter.nf_conntrack_max" = 1048576;
     };
   };
 
-  # System resource limits for container workloads
-  security.pam.loginLimits = [
+  # System resource limits with reasonable defaults
+  security.pam.loginLimits = lib.mkDefault [
     { domain = "*"; type = "soft"; item = "nofile"; value = "1048576"; }
     { domain = "*"; type = "hard"; item = "nofile"; value = "1048576"; }
     { domain = "*"; type = "soft"; item = "nproc"; value = "unlimited"; }
@@ -92,7 +78,7 @@
   ];
 
   # System tuning via systemd
-  systemd.extraConfig = ''
+  systemd.extraConfig = lib.mkDefault ''
     DefaultTimeoutStartSec=90s
     DefaultTimeoutStopSec=90s
   '';

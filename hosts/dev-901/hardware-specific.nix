@@ -2,9 +2,6 @@
 { config, lib, pkgs, ... }:
 
 {
-  # Import standardized Kubernetes hardware configuration
-  imports = [ ../common/hardware-kubernetes.nix ];
-
   # Any control-plane specific hardware adjustments can go here
 
   # Additional memory for etcd and apiserver

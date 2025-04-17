@@ -15,7 +15,6 @@
               priority = 0;
               size = "1M";
               type = "EF02"; # BIOS boot partition
-              flags = ["bios_grub"];
             };
             # Boot partition
             boot = {

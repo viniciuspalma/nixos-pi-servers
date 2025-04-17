@@ -3,7 +3,7 @@
 
 {
   imports = [
-    ./hardware.nix
+    ./hardware-unified.nix
     ./networking.nix
     ./ssh.nix
     ./system.nix
@@ -15,6 +15,8 @@
     experimental-features = [ "nix-command" "flakes" ];
     auto-optimise-store = true;
   };
+
+  nixpkgs.config.allowUnfree = true;
 
   # Set a common state version
   system.stateVersion = "24.05";

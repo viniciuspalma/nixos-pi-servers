@@ -85,10 +85,12 @@ For each host (dev-365, dev-901, dev-142, dev-605):
 3. ✅ Configure host-specific services
 4. ✅ Set appropriate disk device paths
 
-### 5. Test Configurations
+### ✅ 5. Test Configurations
 
-1. Create a script to validate configurations
-2. Test disk layouts using the disko test functionality:
+1. ✅ Create a script to validate configurations:
+   - ✅ scripts/test-config.sh for general configuration testing
+   - ✅ scripts/test-disko.sh for disk layout testing
+2. ✅ Test disk layouts using the disko test functionality:
    ```
    nix-build -E "((import <nixpkgs> {}).nixos [ ./configuration.nix ]).installTest"
    ```

@@ -12,21 +12,19 @@
   networking = {
     hostName = "dev-901";
 
-    # Static IP configuration (optional)
-    # useDHCP = false;
-    # interfaces.eth0.ipv4.addresses = [{
-    #   address = "192.168.13.102";
-    #   prefixLength = 24;
-    # }];
-    # defaultGateway = "192.168.13.1";
-    # nameservers = [ "1.1.1.1" "8.8.8.8" ];
+    useDHCP = false;
+    interfaces.eth0.ipv4.addresses = [{
+      address = "192.168.13.102";
+      prefixLength = 24;
+    }];
+    defaultGateway = "192.168.1.1";
   };
 
   # Host specific disk device
   disko.devices.disk.main.device = "/dev/nvme0n1";
 
   # Bootloader configuration
-  boot.loader.grub.devices = [ "/dev/nvme0n1" ];
+#   boot.loader.grub.devices = [ "/dev/nvme0n1" ];
 
   # Only include essential packages for Kubernetes management
   environment.systemPackages = with pkgs; [

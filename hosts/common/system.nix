@@ -48,10 +48,7 @@
 
   # Enable nix flakes
   nix = {
-    package = pkgs.nixFlakes;
-    extraOptions = ''
-      experimental-features = nix-command flakes
-    '';
+    package = pkgs.nixVersions.stable;
     settings = {
       # Optimize store automatically
       auto-optimise-store = true;
@@ -62,7 +59,7 @@
     gc = {
       automatic = true;
       dates = "weekly";
-      options = "--delete-older-than 30d";
+      options = "--delete-older-than 7d";
     };
   };
 

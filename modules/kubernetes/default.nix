@@ -1,7 +1,19 @@
 # Common Kubernetes configuration
 { config, lib, pkgs, ... }:
 
+let
+  # Define common values here
+  podSubnet = "10.244.0.0/16";  # For Flannel network
+  serviceClusterIpRange = "10.96.0.0/12";
+in
 {
+  # Export the common values for other modules to use
+  _module.args = {
+    k8s = {
+      inherit podSubnet serviceClusterIpRange;
+    };
+  };
+
   # Enable container runtime
   virtualisation.containerd = {
     enable = true;
@@ -28,12 +40,6 @@
         extraOpts = "--fail-swap-on=false"; # Raspberry Pi may not have swap
         nodeIp = config.networking.primaryIPAddress;
         containerRuntimeEndpoint = "unix:///run/containerd/containerd.sock";
-      };
-
-      # Shared cluster configuration
-      commonClusterConfig = {
-        serviceClusterIpRange = "10.96.0.0/12";
-        podSubnet = "10.244.0.0/16"; # For Flannel network
       };
     };
   };
@@ -76,14 +82,4 @@
   boot.extraModulePackages = [
     config.boot.kernelPackages.wireguard
   ];
-
-  # Kernel modules needed for Kubernetes
-  boot.kernelModules = [ "br_netfilter" "overlay" ];
-
-  # Kernel settings for Kubernetes
-  boot.kernel.sysctl = {
-    "net.bridge.bridge-nf-call-iptables" = 1;
-    "net.bridge.bridge-nf-call-ip6tables" = 1;
-    "net.ipv4.ip_forward" = 1;
-  };
 }
