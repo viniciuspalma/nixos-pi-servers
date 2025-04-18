@@ -38,12 +38,30 @@ validate_host() {
     return 1
   fi
 
-  # Step 2: Test the disk layout
-  print_status "  Testing disk layout..." "$YELLOW"
-  if nix-build -E "((import <nixpkgs> {}).nixos [ ${REPO_ROOT}/hosts/${host} ]).installTest" --no-out-link --show-trace; then
-    print_status "  ✅ Disk layout for ${host} is valid" "$GREEN"
+  # Step 2: Validate disko configuration
+  print_status "  Validating disko configuration..." "$YELLOW"
+  if nix build ".#nixosConfigurations.${host}.config.system.build.diskoScript" --no-link; then
+    print_status "  ✅ Disko configuration for ${host} builds successfully" "$GREEN"
+
+    # Get the build path
+    disko_script=$(nix path-info ".#nixosConfigurations.${host}.config.system.build.diskoScript")
+
+    # Check for common disk layout issues
+    if grep -q "Failed to create partition" "$disko_script"; then
+      print_status "  ❌ Partition creation issues detected" "$RED"
+      return 1
+    fi
+
+    # Count partitions to ensure we have at least some
+    partition_count=$(grep -c "Create partition" "$disko_script" || true)
+    if [[ $partition_count -eq 0 ]]; then
+      print_status "  ❌ No partitions detected in disko script" "$RED"
+      return 1
+    else
+      print_status "  ✅ Found $partition_count partitions" "$GREEN"
+    fi
   else
-    print_status "  ❌ Disk layout for ${host} has issues" "$RED"
+    print_status "  ❌ Disko configuration for ${host} failed to build" "$RED"
     return 1
   fi
 

@@ -1,21 +1,13 @@
 # Kubernetes control plane configuration
-{ config, lib, pkgs, k8s, ... }:
-
-let
-  # Define primaryIPAddress - use the first IP of the first interface or a static value
-  primaryIPAddress = with config.networking;
-    if (interfaces != {}) then
-      let
-        firstInterface = builtins.head (builtins.attrNames interfaces);
-        addresses = interfaces.${firstInterface}.ipv4.addresses;
-      in
-        if (addresses != [] && builtins.length addresses > 0)
-        then (builtins.head addresses).address
-        else "127.0.0.1"
-    else
-      "127.0.0.1"; # Fallback address
-in
 {
+  config,
+  lib,
+  pkgs,
+  k8s,
+  ...
+}: let
+  primaryIPAddress = "192.168.13.102";
+in {
   imports = [
     ./default.nix
   ];
@@ -39,7 +31,7 @@ in
     # Controller manager configuration
     controllerManager = {
       enable = true;
-    #   serviceClusterIpRange = k8s.serviceClusterIpRange;
+      #   serviceClusterIpRange = k8s.serviceClusterIpRange;
       clusterCidr = k8s.podSubnet;
     };
 
@@ -63,13 +55,20 @@ in
     masterAddress = primaryIPAddress;
   };
 
+  services.etcd = {
+    enable = true;
+    listenClientUrls = ["http://127.0.0.1:2379"];
+    advertiseClientUrls = ["http://127.0.0.1:2379"];
+  };
+
   # Open additional ports for control plane
   networking.firewall = {
     allowedTCPPorts = [
       # Kubernetes API server
       6443
       # etcd server client API
-      2379 2380
+      2379
+      2380
       # Kubernetes scheduler
       10251
       # Kubernetes controller manager

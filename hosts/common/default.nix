@@ -11,6 +11,7 @@
     ./ssh.nix
     ./system.nix
     ./users.nix
+    ../../modules/disk-layouts
   ];
 
   # Common system configuration

@@ -6,8 +6,8 @@
   ...
 }: let
   # Define common values here
-  podSubnet = "10.244.0.0/16"; # For Flannel network
-  serviceClusterIpRange = "10.96.0.0/12";
+  podSubnet = "192.168.13.0/24"; # For Flannel network
+  serviceClusterIpRange = "192.168.13.0/24";
 in {
   # Export the common values for other modules to use
   _module.args = {

@@ -1,11 +1,12 @@
 # Configuration for dev-901 (Kubernetes Control Plane)
-{ modulesPath, pkgs, ... }:
-
 {
+  modulesPath,
+  pkgs,
+  ...
+}: {
   imports = [
-    ../../modules/disk-layouts
     ./hardware-specific.nix
-    ../../modules/kubernetes/control-plane.nix
+    #../../modules/kubernetes/control-plane.nix
   ];
 
   # Host specific configuration
@@ -13,12 +14,14 @@
     hostName = "dev-901";
 
     useDHCP = false;
-    interfaces.eth0.ipv4.addresses = [{
-      address = "192.168.13.102";
-      prefixLength = 24;
-    }];
+    interfaces.eth0.ipv4.addresses = [
+      {
+        address = "192.168.13.102";
+        prefixLength = 24;
+      }
+    ];
     defaultGateway = "192.168.13.1";
-    nameservers = [ "192.168.13.1" ];
+    nameservers = ["192.168.13.1"];
   };
 
   # Host specific disk device

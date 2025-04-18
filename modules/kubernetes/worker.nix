@@ -1,7 +1,11 @@
 # Kubernetes worker node configuration
-{ config, lib, pkgs, k8s, ... }:
-
 {
+  config,
+  lib,
+  pkgs,
+  k8s,
+  ...
+}: {
   imports = [
     ./default.nix
   ];
@@ -17,7 +21,6 @@
     # Configure flannel on worker nodes
     flannel = {
       enable = true;
-      network = k8s.podSubnet;
     };
 
     # Default master address (can be overridden in node-specific config)

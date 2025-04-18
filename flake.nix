@@ -36,10 +36,10 @@
           inherit disko nixos-anywhere raspberry-pi-nix;
         };
         modules = [
+          disko.nixosModules.disko
           ./hosts/${hostname}
           ./hosts/common
           ./modules/raspberry-pi.nix
-          disko.nixosModules.disko
         ];
       };
     };

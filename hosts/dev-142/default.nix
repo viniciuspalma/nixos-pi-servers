@@ -1,9 +1,10 @@
 # Configuration for dev-142 (Kubernetes Worker Node)
-{ modulesPath, pkgs, ... }:
-
 {
+  modulesPath,
+  pkgs,
+  ...
+}: {
   imports = [
-    ../../modules/disk-layouts
     ./hardware-specific.nix
     ../../modules/kubernetes/worker.nix
   ];
@@ -13,10 +14,12 @@
     hostName = "dev-142";
 
     useDHCP = false;
-    interfaces.eth0.ipv4.addresses = [{
-      address = "192.168.13.103";
-      prefixLength = 24;
-    }];
+    interfaces.eth0.ipv4.addresses = [
+      {
+        address = "192.168.13.103";
+        prefixLength = 24;
+      }
+    ];
     defaultGateway = "192.168.1.1";
   };
 
@@ -27,7 +30,7 @@
   disko.devices.disk.main.device = "/dev/nvme0n1";
 
   # Bootloader configuration
-  boot.loader.grub.devices = [ "/dev/nvme0n1" ];
+  boot.loader.grub.devices = ["/dev/nvme0n1"];
 
   # Only include essential packages for Kubernetes node
   environment.systemPackages = with pkgs; [
